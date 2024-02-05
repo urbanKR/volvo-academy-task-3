@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace VolvoAcademyTask3
 {
@@ -20,12 +21,23 @@ namespace VolvoAcademyTask3
         {
             string data = string.Join(" ", lines);
             Sentences = Regex.Split(data, @"(?<=[.!?])\s+").Where(s => !string.IsNullOrWhiteSpace(s)).ToArray();
-            string[] words = Regex.Split(data, @"\b\w+\b").Where(w => !string.IsNullOrWhiteSpace(w)).ToArray();
+            string[] words = GetWords(data);
             Words = words.GroupBy(w => w).ToDictionary(g => g.Key, g => g.Count());
-            Letters = CountLetters(words);
-            Punctuation = Regex.Matches(data, @"\P{L}").Select(m => m.Value).ToArray();
+            Letters = GetLetters(words);
+            Punctuation = Regex.Matches(data, @"\P{L}").Select(m => m.Value).Where(w => !string.IsNullOrWhiteSpace(w)).ToArray();
         }
-        private Dictionary<char, int> CountLetters(string[] words)
+
+        private string[] GetWords(string txt)
+        {
+            var match = Regex.Matches(txt, @"\b\w+\b");
+            string[] words = new string[match.Count];
+            for (int i = 0; i < match.Count; i++)
+            {
+                words[i] = match[i].Value.ToLower();
+            }
+            return words;
+        }
+        private Dictionary<char, int> GetLetters(string[] words)
         {
             Dictionary<char, int> letters = new();
             foreach (string s in words)

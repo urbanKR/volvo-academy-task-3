@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,27 +10,32 @@ namespace VolvoAcademyTask3
     internal class StatisticsCounter
     {
         private readonly LineProcessor LineProcessor;
-        public StatisticsCounter(LineProcessor lineProcessor) 
+        public StatisticsCounter(LineProcessor lineProcessor)
         {
             LineProcessor = lineProcessor;
         }
 
-        public int CalculateLongestSentence() 
+        public async Task<string> GetLongestSentenceAsync()
         {
-            return LineProcessor.Sentences.Max(s => s.Length);
+            return LineProcessor.Sentences.OrderByDescending(s => s.Length).First();
         }
 
-        public int CalculateShortestSentence()
+        public async Task<string> GetShortestSentenceAsync()
         {
-            return LineProcessor.Sentences.Min(s => s.Split(' ').Length);
+            return LineProcessor.Sentences.OrderBy(sentence => sentence.Split(' ').Length).First(); ;
         }
-        public string GetLongestWord()
+        public async Task<string> GetLongestWordAsync()
         {
             return LineProcessor.Words.OrderByDescending(w => w.Key.Length).First().Key;
         }
-        public char GetMostCommonLetter()
+        public async Task<char> GetMostCommonLetterAsync()
         {
             return LineProcessor.Letters.OrderByDescending(l => l.Value).First().Key;
+        }
+
+        public async Task<string[]> GetWordsSortedByNumberOfUsesAsync()
+        {
+            return LineProcessor.Words.OrderByDescending(kv => kv.Value).Select(kv => kv.Key).ToArray();
         }
     }
 }

@@ -2,9 +2,11 @@
 {
     internal class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             Console.WriteLine("Hello, World!");
+            FileReader fileReader = new FileReader(@"C:\Users\Krzysztof\Downloads\test_file.txt");
+            await fileReader.ProcessFileAsync();
         }
     }
 }
