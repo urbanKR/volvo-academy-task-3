@@ -20,17 +20,35 @@ namespace VolvoAcademyTask3
             return LineProcessor.Sentences.OrderByDescending(s => s.Length).First();
         }
 
+        public async Task<string[]> Get10LongestSentencesAsync()
+        {
+            return LineProcessor.Sentences.OrderByDescending(s => s.Length).Take(10).ToArray();
+        }
+
         public async Task<string> GetShortestSentenceAsync()
         {
             return LineProcessor.Sentences.OrderBy(sentence => sentence.Split(' ').Length).First(); ;
+        }
+        public async Task<string[]> Get10ShortestSentencesAsync()
+        {
+            return LineProcessor.Sentences.OrderBy(sentence => sentence.Split(' ').Length).Take(10).ToArray();
         }
         public async Task<string> GetLongestWordAsync()
         {
             return LineProcessor.Words.OrderByDescending(w => w.Key.Length).First().Key;
         }
+        public async Task<string[]> Get10LongestWordsAsync()
+        {
+            return LineProcessor.Words.OrderByDescending(w => w.Key.Length).Take(10).Select(w => w.Key).ToArray();
+        }
         public async Task<char> GetMostCommonLetterAsync()
         {
             return LineProcessor.Letters.OrderByDescending(l => l.Value).First().Key;
+        }
+
+        public async Task<char[]> Get10MostCommonLetterAsync()
+        {
+            return LineProcessor.Letters.OrderByDescending(l => l.Value).Take(10).Select(l => l.Key).ToArray();
         }
 
         public async Task<string[]> GetWordsSortedByNumberOfUsesAsync()

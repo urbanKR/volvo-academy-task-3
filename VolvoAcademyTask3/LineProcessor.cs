@@ -12,10 +12,11 @@ namespace VolvoAcademyTask3
 {
     internal class LineProcessor
     {
-        public string[] Sentences { get; set; }
-        public Dictionary<string, int> Words { get; set; }
-        public Dictionary<char, int> Letters { get; set; }
-        public string[] Punctuation { get; set; }
+        public string[] Sentences { get; }
+        public Dictionary<string, int> Words { get; }
+        public Dictionary<char, int> Letters { get; }
+        public string[] Punctuation { get; }
+        public string Title { get; }
 
         public LineProcessor(string[] lines)
         {
@@ -25,6 +26,16 @@ namespace VolvoAcademyTask3
             Words = words.GroupBy(w => w).ToDictionary(g => g.Key, g => g.Count());
             Letters = GetLetters(words);
             Punctuation = Regex.Matches(data, @"\P{L}").Select(m => m.Value).Where(w => !string.IsNullOrWhiteSpace(w)).ToArray();
+            string lineWithTitle = lines.FirstOrDefault(line => line.StartsWith("Title:"));
+            Match m = Regex.Match(lineWithTitle, @"Title:\s*(.*)");
+            if (m.Success)
+            {
+                Title = m.Groups[1].Value.Trim();
+            }
+            else
+            {
+                Title = "Title not given";
+            }
         }
 
         private string[] GetWords(string txt)

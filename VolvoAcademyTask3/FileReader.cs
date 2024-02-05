@@ -21,6 +21,7 @@ namespace VolvoAcademyTask3
 
         public async Task ProcessFileAsync(string fileName)
         {
+            Console.WriteLine($"Starting Processing file: {fileName}");
             //read file
             IEnumerable<string> data = await ReadFileAsync(FolderPath + "/" + fileName + ".txt");
             //process lines
@@ -28,9 +29,10 @@ namespace VolvoAcademyTask3
             //calculate statistics
             StatisticsCounter statisticsCounter = new StatisticsCounter(lineProcessor);
             //write to file
-            string newFileName = fileName + "_statistics";
+            string newFileName = lineProcessor.Title;
             string newFilePath = ResultsPath + newFileName + ".txt";
             await WriteResultsToNewFileAsync(newFilePath, statisticsCounter);
+            Console.WriteLine($"Finished Processing file: {fileName}");
         }
 
         public async Task ProcessFilesAsync()
@@ -43,9 +45,11 @@ namespace VolvoAcademyTask3
 
         public async Task<IEnumerable<string>> ReadFileAsync(string filePath)
         {
+            Console.WriteLine($"Starting reading file: {filePath.Split('/').Last()}");
             try
             {
                 string[] data = await File.ReadAllLinesAsync(filePath);
+                Console.WriteLine($"Finished reading file: {filePath.Split('/').Last()}");
                 return data;
             }
             catch (Exception e)
@@ -57,10 +61,11 @@ namespace VolvoAcademyTask3
 
         public async Task WriteResultsToNewFileAsync(string filePath, StatisticsCounter statCounter)
         {
-            string longestSentence = await statCounter.GetLongestSentenceAsync();
-            string shortestSentence = await statCounter.GetShortestSentenceAsync();
-            string longestWord = await statCounter.GetLongestWordAsync();
-            char mostCommonLetter = await statCounter.GetMostCommonLetterAsync();
+            Console.WriteLine($"Starting writing to file: {filePath.Split('\\').Last()}");
+            string[] longestSentences = await statCounter.Get10LongestSentencesAsync();
+            string[] shortestSentences = await statCounter.Get10ShortestSentencesAsync();
+            string[] longestWords = await statCounter.Get10LongestWordsAsync();
+            char[] mostCommonLetters = await statCounter.Get10MostCommonLetterAsync();
             string[] sortedWords = await statCounter.GetWordsSortedByNumberOfUsesAsync();
             if (!File.Exists(filePath))
             {
@@ -72,11 +77,27 @@ namespace VolvoAcademyTask3
                 writeFile.Close();
                 using (StreamWriter streamWriter = new StreamWriter(filePath, false, Encoding.UTF8))
                 {
-                    await streamWriter.WriteAsync($"Longest sentence by number of characters: {longestSentence}\n");
-                    await streamWriter.WriteAsync($"Shortest sentence by numbers of words: {shortestSentence}\n");
-                    await streamWriter.WriteAsync($"Longest word: {longestWord}\n");
-                    await streamWriter.WriteAsync($"Most common letter: {mostCommonLetter} \n");
-                    await streamWriter.WriteAsync("Words sorted by the number of uses in descending order:\n");
+                    await streamWriter.WriteAsync("******Longest sentences by number of characters:******\n");
+                    foreach (var s in longestSentences)
+                    {
+                        await streamWriter.WriteLineAsync(s + "\n");
+                    }
+                    await streamWriter.WriteAsync("******Shortest sentences by numbers of words:******\n");
+                    foreach (var s in shortestSentences)
+                    {
+                        await streamWriter.WriteLineAsync(s + "\n");
+                    }
+                    await streamWriter.WriteAsync("******Longest words:******\n");
+                    foreach (var s in longestWords)
+                    {
+                        await streamWriter.WriteLineAsync(s + "\n");
+                    }
+                    await streamWriter.WriteAsync("******Most common letters:******\n");
+                    foreach (var s in mostCommonLetters)
+                    {
+                        await streamWriter.WriteLineAsync(s + "\n");
+                    }
+                    await streamWriter.WriteAsync("******Words sorted by the number of uses in descending order:******\n");
 
                     foreach (string word in sortedWords)
                     {
@@ -88,7 +109,7 @@ namespace VolvoAcademyTask3
             {
                 Console.WriteLine($"Can not create this file, because it already exists!");
             }
-
+            Console.WriteLine($"Finished writing to file: {filePath.Split('\\').Last()}");
         }
     }
 }
