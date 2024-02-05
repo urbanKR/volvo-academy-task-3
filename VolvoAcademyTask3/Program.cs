@@ -5,8 +5,8 @@
         static async Task Main(string[] args)
         {
             Console.WriteLine("Hello, World!");
-            FileReader fileReader = new FileReader(@"C:\Users\Krzysztof\Downloads\test_file.txt");
-            await fileReader.ProcessFileAsync();
+            FileReader fileReader = new FileReader(@"C:\Users\Krzysztof\Downloads\test_folder");
+            await fileReader.ProcessFilesAsync();
         }
     }
 }

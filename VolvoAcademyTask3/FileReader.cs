@@ -11,35 +11,46 @@ namespace VolvoAcademyTask3
 {
     internal class FileReader
     {
-        private string FilePath { get; }
+        private string FolderPath { get; }
+        private string ResultsPath => FolderPath + "\\results\\";
 
-        public FileReader(string filePath)
+        public FileReader(string folderPath)
         {
-            FilePath = filePath;
+            FolderPath = folderPath;
         }
 
-        public async Task ProcessFileAsync()
+        public async Task ProcessFileAsync(string fileName)
         {
             //read file
-            IEnumerable<string> data = await ReadFileAsync();
+            IEnumerable<string> data = await ReadFileAsync(FolderPath + "/" + fileName + ".txt");
             //process lines
             LineProcessor lineProcessor = new LineProcessor(data.ToArray());
             //calculate statistics
             StatisticsCounter statisticsCounter = new StatisticsCounter(lineProcessor);
             //write to file
-            await WriteResultsToNewFileAsync(@"C:\Users\Krzysztof\Downloads\test_file_write.txt", statisticsCounter);
+            string newFileName = fileName + "_statistics";
+            string newFilePath = ResultsPath + newFileName + ".txt";
+            await WriteResultsToNewFileAsync(newFilePath, statisticsCounter);
         }
 
-        public async Task<IEnumerable<string>> ReadFileAsync()
+        public async Task ProcessFilesAsync()
+        {
+            string[] fileNames = Directory.GetFiles(FolderPath, "*.txt").Select(p => Path.GetFileNameWithoutExtension(p)).ToArray();
+            var tasks = fileNames.Select(fn => ProcessFileAsync(fn)).ToArray();
+            await Task.WhenAll(tasks);
+
+        }
+
+        public async Task<IEnumerable<string>> ReadFileAsync(string filePath)
         {
             try
             {
-                string[] data = await File.ReadAllLinesAsync(FilePath);
+                string[] data = await File.ReadAllLinesAsync(filePath);
                 return data;
             }
             catch (Exception e)
             {
-                Console.WriteLine($"Error while reading data from file {FilePath}: {e.Message}");
+                Console.WriteLine($"Error while reading data from file {filePath}: {e.Message}");
                 return new List<string> { };
             }
         }
@@ -53,6 +64,10 @@ namespace VolvoAcademyTask3
             string[] sortedWords = await statCounter.GetWordsSortedByNumberOfUsesAsync();
             if (!File.Exists(filePath))
             {
+                if (!Directory.Exists(ResultsPath))
+                {
+                    var newFlder = Directory.CreateDirectory(FolderPath + "/results");
+                }
                 var writeFile = File.CreateText(filePath);
                 writeFile.Close();
                 using (StreamWriter streamWriter = new StreamWriter(filePath, false, Encoding.UTF8))
